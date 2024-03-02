@@ -7,6 +7,7 @@ const handleHelloWord = (req, res) => {
 const handleUserPage = async (req, res) => {
     let userList = await userService.getUserList();
    // console.log(">>> check user link: ", userList );
+ 
     return res.render("user.ejs", {userList});
 }
 
@@ -17,9 +18,17 @@ let email = req.body.email;
 let password= req.body.password;
 let username= req.body.username;
   
+userService.createNewUser(email, password, username);
 
-    return res.send("handleCreateUser");
+    return res.redirect("/user");
 }
+
+const handleDeleteUser  = async (req, res) => {
+
+     await userService.deleteUser(req.params.id);
+     return res.redirect("/user");
+}
+
 module.exports = {
-    handleHelloWord, handleUserPage, handleCreateNewUser
+    handleHelloWord, handleUserPage, handleCreateNewUser, handleDeleteUser
 }
