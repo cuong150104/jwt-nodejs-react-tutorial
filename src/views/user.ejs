@@ -75,12 +75,11 @@
                 <th scope="row"><%= item.id %></th>
                 <td><%= item.email %></td>
                 <td><%= item.username %></td>
-                <td>
-                        <button  class="btn btn-warning">
+                <td> <a class="btn btn-warning" href="/update-user/<%= item.id %>" >
                           Edit
-                        </button>
+                      </a>
 
-                        <form style = "display: inline" action="/delte-user/<%= item.id %>" method="POST">
+                        <form style = "display: inline" action="/delete-user/<%= item.id %>" method="POST">
                           <button class="btn btn-danger" type="submit">
                               Delete
                           </button>
