@@ -20,7 +20,7 @@ module.exports = (sequelize, DataTypes) => {
     
   }, {
     sequelize,
-    modelName: 'Project_User',
+    modelName: 'Group_Role',
   });
   return Project_User;
 };

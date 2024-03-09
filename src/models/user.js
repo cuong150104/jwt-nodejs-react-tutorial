@@ -12,6 +12,7 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // define association here
       User.belongsTo(models.Group);
+      User.belongsToMany(models.Project, {through: 'Project_User'})
     }
   };
   // object relational mapping
@@ -22,7 +23,7 @@ module.exports = (sequelize, DataTypes) => {
     address: DataTypes.STRING,
     sex: DataTypes.STRING,
     phone: DataTypes.STRING,
-    groupId: DataTypes.INTEGER
+    groupId : DataTypes.INTEGER
     
   }, {
     sequelize,

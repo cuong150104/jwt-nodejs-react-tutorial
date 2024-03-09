@@ -26,7 +26,7 @@ module.exports = {
       phone: {
         type: Sequelize.STRING
       },
-      proupId: {
+      groupId: {
         type: Sequelize.INTEGER
       },
       

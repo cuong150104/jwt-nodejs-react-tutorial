@@ -11,7 +11,7 @@ module.exports = {
      *   isBetaMember: false
      * }], {});
     */
-   await queryInterface.bulkInsert('User',//ten model
+   await queryInterface.bulkInsert('user',//ten model
     [
       {
      email: 'John Doe',
