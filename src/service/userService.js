@@ -43,24 +43,24 @@ const createNewUser =  async (email, password, username) =>
 
 const getUserList = async () => {
     // test relationships
-    let newUser = await db.User.findOne({
-        where: {id: 1},
-        attributes: ["id", "username", "email"],
-        include: {model: db.Group , attributes: ["name","description"]},
-        raw: true,
-        nest: true
-    }) 
-   console.log(">>> check newUser: ", newUser);
+//     let newUser = await db.User.findOne({
+//         where: {id: 1},
+//         attributes: ["id", "username", "email"],
+//         include: {model: db.Group , attributes: ["name","description"]},
+//         raw: true,
+//         nest: true
+//     }) 
+//    console.log(">>> check newUser: ", newUser);
 
 
    
-   let r = await db.Role.findAll({
-    include: {model: db.Group},
-    raw: true,
-    nest: true
-   })
+//    let r = await db.Role.findAll({
+//     include: {model: db.Group},
+//     raw: true,
+//     nest: true
+//    })
 
-   console.log(">>> check r: ", r);
+//    console.log(">>> check r: ", r);
 
 
     try {
