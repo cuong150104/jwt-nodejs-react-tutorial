@@ -43,13 +43,13 @@ const createNewUser =  async (email, password, username) =>
 
 const getUserList = async () => {
     // test relationships
-//     let newUser = await db.User.findOne({
-//         where: {id: 1},
-//         attributes: ["id", "username", "email"],
-//         include: {model: db.Group , attributes: ["name","description"]},
-//         raw: true,
-//         nest: true
-//     }) 
+    let newUser = await db.User.findOne({
+        where: {id: 1},
+        attributes: ["id", "username", "email"],
+        include: {model: db.Group , attributes: ["name","description"]},
+        raw: true,
+        nest: true
+    }) 
 //    console.log(">>> check newUser: ", newUser);
 
 
