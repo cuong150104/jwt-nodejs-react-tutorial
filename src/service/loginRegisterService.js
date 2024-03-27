@@ -1,124 +1,113 @@
-import db from '../models/index';
-import bcrypt from 'bcryptjs';
-import { Op } from 'sequelize';
+import db from "../models/index";
+import bcrypt from "bcryptjs";
+import { Op } from "sequelize";
 const salt = bcrypt.genSaltSync(10);
-
-const hashUserPassword = async (userPassword) => {
-    let hashPassword = await bcrypt.hashSync(userPassword, salt);
-    return hashPassword;
-}
-
+const hashUserPassword = (userPassword) => {
+  return bcrypt.hashSync(userPassword, salt);
+};
 const checkEmailExist = async (userEmail) => {
-    let user = await db.User.findOne({
-        where: { email: userEmail }
-    })
-
-    if (user) {
-        return true;
-    }
-    return false;
-}
-
+  let user = await db.User.findOne({
+    where: { email: userEmail },
+  });
+  if (user) {
+    return true;
+  }
+  return false;
+};
 const checkPhoneExist = async (userPhone) => {
-    let user = await db.User.findOne({
-        where: { phone: userPhone }
-    })
-
-    if (user) {
-        return true;
-    }
-    return false;
-}
+  let user = await db.User.findOne({
+    where: { phone: userPhone },
+  });
+  if (user) {
+    return true;
+  }
+  return false;
+};
 const registerNewUser = async (rawUserData) => {
-    try {
-        // check email ./ phonenumber are exist
-
-        let isEmailExist = await checkEmailExist(rawUserData.email);
-        if (isEmailExist === true) {
-            return {
-                EM: 'the email is already exist',
-                EC: 1
-            }
-        }
-        let isPhoneExits = await checkPhoneExist(rawUserData.phone);
-        if (isPhoneExits === true) {
-            return {
-                EM: 'the phone number is already exist',
-                EC: 1
-            }
-        }
-        //hash user password
-        let hashPassword = hashUserPassword(rawUserData.password);
-
-        //create new user
-        await db.User.create({
-            email: rawUserData.email,
-            username: rawUserData.username,
-            password: hashPassword,
-            phone: rawUserData.phone
-        })
-
-        return {
-            EM: 'A user is created successfully!',
-            EC: 0
-        }
-    } catch (e) {
-        console.log(e)
-        return {
-            EM: 'something wrongs in service...',
-            EC: 0
-        }
+  try {
+    // check email/phonenumber are exist
+    let isEmailExist = await checkEmailExist(rawUserData.email);
+    if (isEmailExist === true) {
+      return {
+        EM: "The email is a already exist",
+        EC: 1,
+      };
     }
-
-
-}
-
+    let isPhoneExist = await checkPhoneExist(rawUserData.phone);
+    if (isPhoneExist === true) {
+      return {
+        EM: "The phone number is a already exist",
+        EC: 2,
+      };
+    }
+    // hash user password
+    let hashPassword = hashUserPassword(rawUserData.password);
+    // create new user
+    await db.User.create({
+      email: rawUserData.email,
+      username: rawUserData.username,
+      password: hashPassword,
+      phone: rawUserData.phone,
+    });
+    return {
+      EM: "A user is a created successfully!",
+      EC: 0,
+    };
+  } catch (error) {
+    console.log(">> check error: ", error);
+    return {
+      EM: "Something wrongs in service....",
+      EC: -2,
+    };
+  }
+};
 const checkPassword = (inputPassword, hashPassword) => {
-    return bcrypt.compareSync(inputPassword, hashPassword);//true or false
-}
-
+  return bcrypt.compareSync(inputPassword, hashPassword); //true or false
+};
 const handleUserLogin = async (rawData) => {
-    try {
-        let user = await db.User.findOne({
-            where: {
-                [Op.or]: [
-                    { email: rawData.valueLogin },
-                    { phone: rawData.valueLogin }
-                ]
-            }
-        })
-
-        if (user) {
-            console.log("<< tim thay");
-            let isCorrectPassword = checkPassword(rawData.password, user.password);
-            if (isCorrectPassword === true) {
-
-                return {
-                    EM: 'ok!',
-                    EC: 0,
-                    DT: ''
-                }
-            }
-        }
-
-        console.log(">> not found user with email/phone: ", rawData.valueLogin, rawData.password);
+  try {
+    let user = await db.User.findOne({
+      where: {
+        [Op.or]: [{ email: rawData.valueLogin }, { phone: rawData.valueLogin }],
+      },
+    });
+    if (user) {
+      console.log(">>> Found user with email/phone");
+      let isCorrectPassword = await checkPassword(
+        rawData.password,
+        user.password
+      );
+      if (isCorrectPassword === true) {
         return {
-            EM: 'Your email/phone number or password is incorrect!',
-            EC: 1,
-            DT: ''
-        }
-
-
-
-    } catch (error) {
-        console.log(error)
-        return {
-            EM: 'something wrongs in service...',
-            EC: 0
-        }
+          EM: "ok!",
+          EC: 0,
+          DT: "",
+        };
+      }
     }
-}
-
+    console.log(
+      ">>> input user with email/phone: ",
+      rawData.valueLogin,
+      "Password: ",
+      rawData.password
+    );
+    return {
+      EM: "Your email/phone or password is incorrect",
+      EC: 1,
+      DT: "",
+    };
+  } catch (error) {
+    console.log(">> check error: ", error);
+    return {
+      EM: "Something wrongs in service....",
+      EC: -2,
+    };
+  }
+};
 module.exports = {
-    registerNewUser, handleUserLogin, checkEmailExist, checkPhoneExist, hashUserPassword
-}
+  registerNewUser,
+  handleUserLogin,
+  hashUserPassword,
+  checkEmailExist,
+  checkPhoneExist,  
+};

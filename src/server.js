@@ -1,33 +1,30 @@
 import express from "express";
 import configViewEngine from "./config/viewEngine";
-import initWebRoutes from "./routes/web";
+import initWedRoutes from "./routes/web";
 import initApiRoutes from "./routes/api";
-import configCors from "./config/cors";//de bao mat
+import configCors from "./config/cors";
 require("dotenv").config();
-import bodyParser from 'body-parser';
-//import connection from "./config/connectDB";
+import bodyParser from "body-parser";
+// import connection from "./config/connectDB";
 
 
 const app = express();
 const PORT = process.env.PORT || 8080;
-
-//config cors
-configCors(app);//  cors la de bao mat
-
-
-//config view engine
+// config cors
+configCors(app);
+// config view engine
 configViewEngine(app);
-
-//cofig body-parser
+// config body-parser
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+// test connection DB
+// connection();
 
-//test connnection
-//connection();
 
-//init web routes
-initWebRoutes(app);
+
+// init wed routes
+initWedRoutes(app);
 initApiRoutes(app);
-app.listen(PORT, ()=> {
-    console.log(">>> JWT Backend s running on the port = "+PORT);
-})
+app.listen(PORT, () => {
+  console.log(">>> JWT Backend is a running on the port = " + PORT);
+});
