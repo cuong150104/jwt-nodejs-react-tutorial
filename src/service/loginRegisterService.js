@@ -8,119 +8,131 @@ import { createJWT } from "../middleware/JWTAction";
 const salt = bcrypt.genSaltSync(10);
 
 const hashUserPassword = (userPassword) => {
-    return bcrypt.hashSync(userPassword, salt);
+  return bcrypt.hashSync(userPassword, salt);
 };
+
 const checkEmailExist = async (userEmail) => {
-    let user = await db.User.findOne({
-        where: { email: userEmail },
-    });
-    if (user) {
-        return true;
-    }
-    return false;
+  let user = await db.User.findOne({
+    where: { email: userEmail },
+  });
+
+  if (user) {
+    return true;
+  }
+
+  return false;
 };
+
 const checkPhoneExist = async (userPhone) => {
-    let user = await db.User.findOne({
-        where: { phone: userPhone },
-    });
-    if (user) {
-        return true;
-    }
-    return false;
+  let user = await db.User.findOne({
+    where: { phone: userPhone },
+  });
+
+  if (user) {
+    return true;
+  }
+
+  return false;
 };
+
 const registerNewUser = async (rawUserData) => {
-    try {
-        // check email/phonenumber are exist
-        let isEmailExist = await checkEmailExist(rawUserData.email);
-        if (isEmailExist === true) {
-            return {
-                EM: "The email is a already exist",
-                EC: 1,
-            };
-        }
-        let isPhoneExist = await checkPhoneExist(rawUserData.phone);
-        if (isPhoneExist === true) {
-            return {
-                EM: "The phone number is a already exist",
-                EC: 2,
-            };
-        }
-        // hash user password
-        let hashPassword = hashUserPassword(rawUserData.password);
-        // create new user
-        await db.User.create({
-            email: rawUserData.email,
-            username: rawUserData.username,
-            password: hashPassword,
-            phone: rawUserData.phone,
-            groupId: 4,
-        });
-
-        return {
-            EM: "A user is a created successfully!",
-            EC: 0,
-        };
-    } catch (error) {
-        console.log(">> check error: ", error);
-        return {
-            EM: "Something wrongs in service....",
-            EC: -2,
-        };
+  try {
+    // check email/phonenumber are exist
+    let isEmailExist = await checkEmailExist(rawUserData.email);
+    if (isEmailExist === true) {
+      return {
+        EM: "The email is a already exist",
+        EC: 1,
+      };
     }
+    let isPhoneExist = await checkPhoneExist(rawUserData.phone);
+    if (isPhoneExist === true) {
+      return {
+        EM: "The phone number is a already exist",
+        EC: 2,
+      };
+    }
+    // hash user password
+    let hashPassword = hashUserPassword(rawUserData.password);
+    // create new user
+    await db.User.create({
+      email: rawUserData.email,
+      username: rawUserData.username,
+      password: hashPassword,
+      phone: rawUserData.phone,
+      groupId: 4,
+    });
+
+    return {
+      EM: "A user is a created successfully!",
+      EC: 0,
+    };
+  } catch (error) {
+    console.log(">> check error: ", error);
+    return {
+      EM: "Something wrongs in service....",
+      EC: -2,
+    };
+  }
 };
+
 const checkPassword = (inputPassword, hashPassword) => {
-    return bcrypt.compareSync(inputPassword, hashPassword); //true or false
+  return bcrypt.compareSync(inputPassword, hashPassword); //true or false
 };
+
 const handleUserLogin = async (rawData) => {
-    try {
-        let user = await db.User.findOne({
-            where: {
-                [Op.or]: [{ email: rawData.valueLogin }, { phone: rawData.valueLogin }],
-            },
-        });
+  try {
+    let user = await db.User.findOne({
+      where: {
+        [Op.or]: [{ email: rawData.valueLogin }, { phone: rawData.valueLogin }],
+      },
+    });
 
-        if (user) {
+    if (user) {
+      let isCorrectPassword = await checkPassword(
+        rawData.password,
+        user.password
+      );
 
-            let isCorrectPassword = await checkPassword(
-                rawData.password,
-                user.password
-            );
-            if (isCorrectPassword === true) {
-                let groupWithRoles = await getGroupWithRoles(user);
-                let payload = {
-                    email: user.email,
-                    groupWithRoles,
-                    expiresIn: process.env.JWT_EXPIRES_IN,
-                };
-                let token = createJWT(payload);
-                return {
-                    EM: "ok!",
-                    EC: 0,
-                    DT: {
-                        access_token: token,
-                        groupWithRoles,
-                    },
-                };
-            }
-        }
-        
-        return {
-            EM: "Your email/phone or password is incorrect",
-            EC: 1,
-            DT: "",
+      if (isCorrectPassword === true) {
+        let groupWithRoles = await getGroupWithRoles(user);
+        let payload = {
+          email: user.email,
+          groupWithRoles,
+          expiresIn: process.env.JWT_EXPIRES_IN,
         };
-    } catch (error) {
-        console.log(">> check error: ", error);
+        let token = createJWT(payload);
         return {
-            EM: "Something wrongs in service....",
-            EC: -2,
+          EM: "ok!",
+          EC: 0,
+          DT: {
+            access_token: token,
+            groupWithRoles,
+            email: user.email,
+            username: user.username,
+          },
         };
+      }
     }
+
+    return {
+      EM: "Your email/phone or password is incorrect",
+      EC: 1,
+      DT: "",
+    };
+  } catch (error) {
+    console.log(">> check error: ", error);
+    return {
+      EM: "Something wrongs in service....",
+      EC: -2,
+    };
+  }
 };
+
 module.exports = {
-    registerNewUser,
-    handleUserLogin,
-    hashUserPassword,
-    checkEmailExist,
-    checkPhoneExist,
+  registerNewUser,
+  handleUserLogin,
+  hashUserPassword,
+  checkEmailExist,
+  checkPhoneExist,
 };
